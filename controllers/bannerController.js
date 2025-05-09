@@ -21,7 +21,7 @@ export const getBanner = async (req, res) => {
       updatedAt: banner.updatedAt,
     });
   } catch (error) {
-    console.error("❌ getBanner error:", error.message);
+    console.error("getBanner error:", error.message);
     return res.status(500).json({ message: "Failed to fetch banner" });
   }
 };
