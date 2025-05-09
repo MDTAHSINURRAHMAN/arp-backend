@@ -11,6 +11,8 @@ export const About = {
     const db = getDB();
     const result = await db.collection("about").insertOne({
       ...data,
+      artistSay: data.artistSay,
+      image2: data.image2,
       createdAt: new Date(),
     });
     return result.ops?.[0] || { _id: result.insertedId, ...data };
@@ -27,6 +29,8 @@ export const About = {
           email: data.email,
           address: data.address,
           phone: data.phone,
+          artistSay: data.artistSay,
+          image2: data.image2,
           updatedAt: new Date(),
         },
       },

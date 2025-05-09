@@ -12,12 +12,19 @@ export const getAbout = async (req, res) => {
   }
 };
 
-
 // Update or create About content
 export const updateAbout = async (req, res) => {
   try {
     const db = getDB();
-    const { brandMessage, missionPoints, email, address, phone } = req.body;
+    const {
+      brandMessage,
+      missionPoints,
+      email,
+      address,
+      phone,
+      artistSay,
+      image2,
+    } = req.body;
 
     const result = await db.collection("about").updateOne(
       {},
@@ -28,6 +35,8 @@ export const updateAbout = async (req, res) => {
           email,
           address,
           phone,
+          artistSay,
+          image2,
           updatedAt: new Date(),
         },
       },
@@ -49,7 +58,15 @@ export const updateAbout = async (req, res) => {
 export const createAbout = async (req, res) => {
   try {
     const db = getDB();
-    const { brandMessage, missionPoints, email, address, phone } = req.body;
+    const {
+      brandMessage,
+      missionPoints,
+      email,
+      address,
+      phone,
+      artistSay,
+      image2,
+    } = req.body;
 
     const result = await db.collection("about").insertOne({
       brandMessage,
@@ -57,6 +74,8 @@ export const createAbout = async (req, res) => {
       email,
       address,
       phone,
+      artistSay,
+      image2,
       createdAt: new Date(),
     });
 
