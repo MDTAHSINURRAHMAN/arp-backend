@@ -1,5 +1,6 @@
 import { getDB } from "../config/db.js";
 import { About } from "../models/About.js";
+import { uploadToImgbb } from "../middlewares/imgbbMiddleware.js";
 
 // Get About content
 export const getAbout = async (req, res) => {
@@ -16,15 +17,12 @@ export const getAbout = async (req, res) => {
 export const updateAbout = async (req, res) => {
   try {
     const db = getDB();
-    const {
-      brandMessage,
-      missionPoints,
-      email,
-      address,
-      phone,
-      artistSay,
-      image2,
-    } = req.body;
+    const { brandMessage, missionPoints, email, address, phone, artistSay } =
+      req.body;
+    let image2 = req.body.image2;
+    if (req.file) {
+      image2 = await uploadToImgbb(req.file);
+    }
 
     const result = await db.collection("about").updateOne(
       {},
@@ -58,15 +56,12 @@ export const updateAbout = async (req, res) => {
 export const createAbout = async (req, res) => {
   try {
     const db = getDB();
-    const {
-      brandMessage,
-      missionPoints,
-      email,
-      address,
-      phone,
-      artistSay,
-      image2,
-    } = req.body;
+    const { brandMessage, missionPoints, email, address, phone, artistSay } =
+      req.body;
+    let image2 = req.body.image2;
+    if (req.file) {
+      image2 = await uploadToImgbb(req.file);
+    }
 
     const result = await db.collection("about").insertOne({
       brandMessage,
