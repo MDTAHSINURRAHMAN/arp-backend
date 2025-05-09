@@ -17,11 +17,20 @@ export const getAbout = async (req, res) => {
 export const updateAbout = async (req, res) => {
   try {
     const db = getDB();
-    const { brandMessage, missionPoints, email, address, phone, artistSay } =
-      req.body;
+    const { brandMessage, missionPoints, email, address, phone, artistSay } = req.body;
     let image2 = req.body.image2;
     if (req.file) {
       image2 = await uploadToImgbb(req.file);
+    }
+
+    // Ensure missionPoints is always an array
+    let missionPointsParsed = missionPoints;
+    if (typeof missionPoints === "string") {
+      try {
+        missionPointsParsed = JSON.parse(missionPoints);
+      } catch (e) {
+        missionPointsParsed = [];
+      }
     }
 
     const result = await db.collection("about").updateOne(
@@ -29,7 +38,7 @@ export const updateAbout = async (req, res) => {
       {
         $set: {
           brandMessage,
-          missionPoints,
+          missionPoints: missionPointsParsed,
           email,
           address,
           phone,
@@ -56,16 +65,25 @@ export const updateAbout = async (req, res) => {
 export const createAbout = async (req, res) => {
   try {
     const db = getDB();
-    const { brandMessage, missionPoints, email, address, phone, artistSay } =
-      req.body;
+    const { brandMessage, missionPoints, email, address, phone, artistSay } = req.body;
     let image2 = req.body.image2;
     if (req.file) {
       image2 = await uploadToImgbb(req.file);
     }
 
+    // Ensure missionPoints is always an array
+    let missionPointsParsed = missionPoints;
+    if (typeof missionPoints === "string") {
+      try {
+        missionPointsParsed = JSON.parse(missionPoints);
+      } catch (e) {
+        missionPointsParsed = [];
+      }
+    }
+
     const result = await db.collection("about").insertOne({
       brandMessage,
-      missionPoints,
+      missionPoints: missionPointsParsed,
       email,
       address,
       phone,
