@@ -55,7 +55,7 @@ export const createProduct = async (req, res) => {
     if (imageFiles.length > 0) {
       const imageUrls = await Promise.all(
         imageFiles.map(async (file) => {
-          return await uploadToImgbb(file);
+          const url = await uploadToImgbb(file);
           return sanitizeImgbbUrl(url);
         })
       );
@@ -65,7 +65,8 @@ export const createProduct = async (req, res) => {
     // Handle single chartImage
     const chartFile = files?.chartImage?.[0];
     if (chartFile) {
-      productData.chartImage = await uploadToImgbb(chartFile);
+      const url = await uploadToImgbb(chartFile);
+      productData.chartImage = sanitizeImgbbUrl(url);
     }
 
     // Normalize sizes/colors
@@ -102,7 +103,8 @@ export const updateProduct = async (req, res) => {
     if (newImageFiles.length > 0) {
       const uploadedUrls = await Promise.all(
         newImageFiles.map(async (file) => {
-          return await uploadToImgbb(file);
+          const url = await uploadToImgbb(file);
+          return sanitizeImgbbUrl(url);
         })
       );
       finalImages = [...existingImages, ...uploadedUrls];
@@ -112,8 +114,8 @@ export const updateProduct = async (req, res) => {
     let chartImageUrl = productData.existingChartImage || null;
     const chartImageFile = files?.chartImage?.[0];
     if (chartImageFile) {
-      chartImageUrl = await uploadToImgbb(chartImageFile);
-      chartImageUrl = sanitizeImgbbUrl(chartImageUrl);
+      const url = await uploadToImgbb(chartImageFile);
+      chartImageUrl = sanitizeImgbbUrl(url);
     }
 
     // Construct update payload
@@ -174,7 +176,7 @@ export const uploadChartImage = async (req, res) => {
     const sanitizedChartImageUrl = sanitizeImgbbUrl(chartImageUrl);
 
     const result = await Product.update(productId, {
-      chartImage: chartImageUrl,
+      chartImage: sanitizedChartImageUrl,
       updatedAt: new Date(),
     });
 
@@ -184,7 +186,7 @@ export const uploadChartImage = async (req, res) => {
 
     res.status(200).json({
       message: "Chart image uploaded successfully",
-      chartImage: chartImageUrl,
+      chartImage: sanitizedChartImageUrl,
     });
   } catch (error) {
     res.status(500).json({
