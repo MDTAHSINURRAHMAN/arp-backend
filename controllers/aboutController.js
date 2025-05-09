@@ -17,7 +17,8 @@ export const getAbout = async (req, res) => {
 export const updateAbout = async (req, res) => {
   try {
     const db = getDB();
-    const { brandMessage, missionPoints, email, address, phone, artistSay } = req.body;
+    const { brandMessage, missionPoints, email, address, phone, artistSay } =
+      req.body;
     let image2 = req.body.image2;
     if (req.file) {
       image2 = await uploadToImgbb(req.file);
@@ -32,6 +33,12 @@ export const updateAbout = async (req, res) => {
         missionPointsParsed = [];
       }
     }
+
+    console.log(
+      "Parsed missionPoints:",
+      missionPointsParsed,
+      typeof missionPointsParsed
+    );
 
     const result = await db.collection("about").updateOne(
       {},
@@ -65,20 +72,30 @@ export const updateAbout = async (req, res) => {
 export const createAbout = async (req, res) => {
   try {
     const db = getDB();
-    const { brandMessage, missionPoints, email, address, phone, artistSay } = req.body;
+    const { brandMessage, missionPoints, email, address, phone, artistSay } =
+      req.body;
     let image2 = req.body.image2;
     if (req.file) {
       image2 = await uploadToImgbb(req.file);
     }
 
-    // Ensure missionPoints is always an array
     let missionPointsParsed = missionPoints;
     if (typeof missionPoints === "string") {
       try {
         missionPointsParsed = JSON.parse(missionPoints);
+        console.log(
+          "missionPoints is a string, parsed as:",
+          missionPointsParsed
+        );
       } catch (e) {
         missionPointsParsed = [];
+        console.log(
+          "Failed to parse missionPoints, fallback to empty array:",
+          missionPointsParsed
+        );
       }
+    } else {
+      console.log("missionPoints is already an array:", missionPointsParsed);
     }
 
     const result = await db.collection("about").insertOne({
