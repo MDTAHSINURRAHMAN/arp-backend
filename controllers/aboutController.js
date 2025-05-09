@@ -6,13 +6,12 @@ export const getAbout = async (req, res) => {
   try {
     const db = getDB();
     const about = await db.collection("about").findOne({});
-    res.status(200).json(about || null); // ✅ instead of 404
-
-    res.json(about);
+    return res.status(200).json(about || null); // Only one response
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
+
 
 // Update or create About content
 export const updateAbout = async (req, res) => {
