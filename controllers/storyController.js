@@ -1,6 +1,8 @@
 import { Story } from "../models/Story.js";
 import { ObjectId } from "mongodb";
-import { uploadToS3 } from "../services/s3Service.js";
+import { uploadToImgbb } from "../middlewares/imgbbMiddleware.js";
+
+const sanitizeImgbbUrl = (url) => url?.replace("i.ibb.co.com", "i.ibb.co");
 
 // GET /api/story
 export const getStory = async (req, res) => {
@@ -9,7 +11,11 @@ export const getStory = async (req, res) => {
     if (!stories || stories.length === 0) {
       return res.status(200).json(null);
     }
-    res.status(200).json(stories);
+    const sanitizedStories = stories.map((story) => ({
+      ...story,
+      image: sanitizeImgbbUrl(story.image),
+    }));
+    res.status(200).json(sanitizedStories);
   } catch (error) {
     res.status(500).json({
       message: "Failed to fetch stories",
@@ -25,21 +31,22 @@ export const createStory = async (req, res) => {
       return res.status(400).json({ message: "Image is required" });
     }
 
+    
+
     const content = JSON.parse(req.body.content || "[]");
 
     if (!Array.isArray(content) || content.length === 0) {
-      return res.status(400).json({ message: "Content must be a non-empty array" });
+      return res
+        .status(400)
+        .json({ message: "Content must be a non-empty array" });
     }
 
-    // Upload to S3
-    const timestamp = Date.now();
-    const key = `stories/${timestamp}-${req.file.originalname}`;
-    await uploadToS3(req.file, key);
-
-    const image = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    // Upload to imgbb
+    const imageUrl = await uploadToImgbb(req.file);
+    const sanitizedImageUrl = sanitizeImgbbUrl(imageUrl);
 
     const newStory = {
-      image,
+      image: sanitizedImageUrl,
       content,
     };
 
@@ -70,17 +77,17 @@ export const updateStory = async (req, res) => {
     const content = JSON.parse(req.body.content || "[]");
 
     if (!Array.isArray(content) || content.length === 0) {
-      return res.status(400).json({ message: "Content must be a non-empty array" });
+      return res
+        .status(400)
+        .json({ message: "Content must be a non-empty array" });
     }
 
     const updateData = { content };
 
     if (req.file) {
-      const timestamp = Date.now();
-      const key = `stories/${timestamp}-${req.file.originalname}`;
-      await uploadToS3(req.file, key);
-
-      updateData.image = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+      const imageUrl = await uploadToImgbb(req.file);
+      const sanitizedImageUrl = sanitizeImgbbUrl(imageUrl);
+      updateData.image = sanitizedImageUrl;
     }
 
     const result = await Story.update(storyId, updateData);

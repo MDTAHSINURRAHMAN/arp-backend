@@ -1,5 +1,7 @@
 import { Banner } from "../models/Banner.js";
-import { uploadToS3, getSignedImageUrl } from "../services/s3Service.js";
+import { uploadToImgbb } from "../middlewares/imgbbMiddleware.js";
+
+const sanitizeImgbbUrl = (url) => url?.replace("i.ibb.co.com", "i.ibb.co");
 
 export const getBanner = async (req, res) => {
   try {
@@ -9,11 +11,13 @@ export const getBanner = async (req, res) => {
       return res.status(200).json({ imageUrl: null });
     }
 
-    const imageUrl = await getSignedImageUrl(banner.image);
+    // Sanitize the image URL
+    const sanitizedImageUrl = sanitizeImgbbUrl(banner.image);
 
+    // The image is now a direct imgbb URL
     return res.status(200).json({
       image: banner.image,
-      imageUrl,
+      imageUrl: sanitizedImageUrl,
       updatedAt: banner.updatedAt,
     });
   } catch (error) {
@@ -30,20 +34,17 @@ export const updateBanner = async (req, res) => {
       return res.status(400).json({ message: "No image file uploaded" });
     }
 
-    const key = `banners/${Date.now()}-${file.originalname}`;
-    await uploadToS3(file, key);
-
+    const imageUrl = await uploadToImgbb(file);
+    const sanitizedImageUrl = sanitizeImgbbUrl(imageUrl);
     const result = await Banner.upsert({
-      image: key,
+      image: imageUrl,
       updatedAt: new Date(),
     });
 
-    const signedUrl = await getSignedImageUrl(key);
-
     return res.status(200).json({
       message: "Banner updated successfully",
-      image: key,
-      imageUrl: signedUrl,
+      image: imageUrl,
+      imageUrl: sanitizedImageUrl,
     });
   } catch (error) {
     console.error("❌ updateBanner error:", error.message);

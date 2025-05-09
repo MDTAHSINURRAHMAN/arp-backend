@@ -3,6 +3,7 @@ import {
   findAdminByUsername,
   comparePassword,
   findAdminById,
+  createAdmin,
 } from "../models/Admin.js";
 import { getDB } from "../config/db.js";
 import { ObjectId } from "mongodb";
@@ -91,5 +92,29 @@ export const getMe = async (req, res) => {
       success: false,
       message: "Server Error",
     });
+  }
+};
+
+// @desc    Register a new admin
+// @route   POST /api/auth/register
+// @access  Public
+export const registerAdmin = async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+    }
+    const existing = await findAdminByUsername(username);
+    if (existing) {
+      return res
+        .status(409)
+        .json({ success: false, message: "Username already exists" });
+    }
+    const adminId = await createAdmin({ username, email, password });
+    res.status(201).json({ success: true, adminId });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };

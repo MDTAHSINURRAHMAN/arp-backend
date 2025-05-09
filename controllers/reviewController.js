@@ -1,7 +1,9 @@
 import { Review } from "../models/Review.js";
 import { ObjectId } from "mongodb";
 import { getDB } from "../config/db.js";
-import { uploadToS3, getSignedImageUrl } from "../services/s3Service.js";
+import { uploadToImgbb } from "../middlewares/imgbbMiddleware.js";
+
+const sanitizeImgbbUrl = (url) => url?.replace("i.ibb.co.com", "i.ibb.co");
 
 export const createReview = async (req, res) => {
   try {
@@ -28,27 +30,23 @@ export const createReview = async (req, res) => {
       });
     }
 
-    let imageKey = null;
+    let imageUrl = null;
     if (req.file) {
-      // Generate a unique key for the image
-      const timestamp = Date.now();
-      imageKey = `reviews/${timestamp}-${req.file.originalname}`;
-      await uploadToS3(req.file, imageKey);
+      imageUrl = await uploadToImgbb(req.file);
+      imageUrl = sanitizeImgbbUrl(imageUrl);
     }
 
     const result = await Review.create({
       productId,
-      image: imageKey,
+      image: imageUrl,
       name,
       rating,
       subtext,
       review,
     });
 
-    // If there's an image, get its signed URL
     let responseData = { ...result };
-    if (imageKey) {
-      const imageUrl = await getSignedImageUrl(imageKey);
+    if (imageUrl) {
       responseData.imageUrl = imageUrl;
     }
 
@@ -76,9 +74,9 @@ export const getReviewById = async (req, res) => {
       return res.status(404).json({ message: "Review not found" });
     }
 
-    // Get signed URL for the image if it exists
+    // 🔧 Fix image URL here
     if (review.image) {
-      review.imageUrl = await getSignedImageUrl(review.image);
+      review.image = sanitizeImgbbUrl(review.image);
     }
 
     // Add product name from productId
@@ -106,7 +104,7 @@ export const getReviewById = async (req, res) => {
 export const getAllReviews = async (req, res) => {
   try {
     const { q, product, customer, rating } = req.query;
-    
+
     // Determine if we need to use search or findAll
     let reviews;
     if (q || product || customer || rating) {
@@ -116,18 +114,12 @@ export const getAllReviews = async (req, res) => {
       // Otherwise get all reviews
       reviews = await Review.findAll();
     }
-    
+
     const db = getDB();
 
     // Enhance reviews with additional data
     const reviewsWithUrls = await Promise.all(
       reviews.map(async (review) => {
-        // Add signed image URL
-        if (review.image) {
-          const imageUrl = await getSignedImageUrl(review.image);
-          review.imageUrl = imageUrl;
-        }
-
         // Add product name
         if (review.productId && ObjectId.isValid(review.productId)) {
           const product = await db
@@ -140,7 +132,6 @@ export const getAllReviews = async (req, res) => {
             review.product = product.name;
           }
         }
-
         return review;
       })
     );
@@ -153,7 +144,6 @@ export const getAllReviews = async (req, res) => {
   }
 };
 
-
 export const getReviewsByProductId = async (req, res) => {
   try {
     const { productId } = req.params;
@@ -164,17 +154,8 @@ export const getReviewsByProductId = async (req, res) => {
 
     const reviews = await Review.findByProductId(productId);
 
-    // Get signed URLs for all images
-    const reviewsWithUrls = await Promise.all(
-      reviews.map(async (review) => {
-        if (review.image) {
-          review.imageUrl = await getSignedImageUrl(review.image);
-        }
-        return review;
-      })
-    );
-    console.log("✅ Review sample with imageUrl:", reviewsWithUrls[0]);
-    res.status(200).json(reviewsWithUrls);
+
+    res.status(200).json(reviews);
   } catch (error) {
     res
       .status(500)
@@ -223,19 +204,15 @@ export const updateReview = async (req, res) => {
       });
     }
 
-    let imageKey = undefined;
+    let imageUrl = undefined;
     if (req.file) {
-      // Generate a unique key for the image
-      const timestamp = Date.now();
-      imageKey = `reviews/${productId || req.params.id}/${timestamp}-${
-        req.file.originalname
-      }`;
-      await uploadToS3(req.file, imageKey);
-    }
+  const rawUrl = await uploadToImgbb(req.file);
+  imageUrl = sanitizeImgbbUrl(rawUrl);
+}
 
     const updateData = {
       ...(productId !== undefined && { productId }),
-      ...(imageKey !== undefined && { image: imageKey }),
+      ...(imageUrl !== undefined && { image: imageUrl }),
       ...(name !== undefined && { name }),
       ...(rating !== undefined && { rating }),
       ...(subtext !== undefined && { subtext }),
@@ -248,8 +225,7 @@ export const updateReview = async (req, res) => {
     }
 
     let responseData = { message: "Review updated successfully" };
-    if (imageKey) {
-      const imageUrl = await getSignedImageUrl(imageKey);
+    if (imageUrl) {
       responseData.imageUrl = imageUrl;
     }
 

@@ -33,7 +33,7 @@ const allowedOrigins = [
   "http://localhost:3001",
   "http://192.168.0.106:3000",
   "http://192.168.0.106:3001",
-  "https://space-star-rho.vercel.app",
+  "https://arp-admin-panel.vercel.app",
   "https://spacestar-frontend.vercel.app",
 ];
 
