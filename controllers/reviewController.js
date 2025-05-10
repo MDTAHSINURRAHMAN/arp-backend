@@ -4,7 +4,9 @@ import { getDB } from "../config/db.js";
 
 export const createReview = async (req, res) => {
   try {
-    const { productId, name, rating, subtext, review, image } = req.body;
+    console.log("Received body:", req.body); // Debug line
+    const { productId, name, rating, subtext, review, image, status } =
+      req.body;
 
     // Validate required fields
     if (!productId || !name || !rating || !review) {
@@ -27,23 +29,23 @@ export const createReview = async (req, res) => {
       });
     }
 
-    let imageUrl = image || null;
-
     const result = await Review.create({
       productId,
-      image: imageUrl,
+      image,
       name,
       rating,
       subtext,
       review,
+      status,
     });
 
-    let responseData = { ...result };
-    if (imageUrl) {
-      responseData.imageUrl = imageUrl;
-    }
+    // Fetch the created review
+    const db = getDB();
+    const createdReview = await db
+      .collection("reviews")
+      .findOne({ _id: result.insertedId });
 
-    res.status(201).json(responseData);
+    res.status(201).json(createdReview);
   } catch (error) {
     res
       .status(500)
@@ -191,11 +193,9 @@ export const updateReview = async (req, res) => {
       });
     }
 
-    let imageUrl = image;
-
     const updateData = {
       ...(productId !== undefined && { productId }),
-      ...(imageUrl !== undefined && { image: imageUrl }),
+      ...(image !== undefined && { image }),
       ...(name !== undefined && { name }),
       ...(rating !== undefined && { rating }),
       ...(subtext !== undefined && { subtext }),
@@ -207,12 +207,7 @@ export const updateReview = async (req, res) => {
       return res.status(404).json({ message: "Review not found" });
     }
 
-    let responseData = { message: "Review updated successfully" };
-    if (imageUrl) {
-      responseData.imageUrl = imageUrl;
-    }
-
-    res.status(200).json(responseData);
+    res.status(200).json({ message: "Review updated successfully" });
   } catch (error) {
     res
       .status(500)
