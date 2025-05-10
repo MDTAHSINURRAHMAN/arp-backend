@@ -1,23 +1,14 @@
 import { Banner } from "../models/Banner.js";
-import { uploadToImgbb } from "../middlewares/imgbbMiddleware.js";
-
-const sanitizeImgbbUrl = (url) => url?.replace("i.ibb.co.com", "i.ibb.co");
 
 export const getBanner = async (req, res) => {
   try {
     const banner = await Banner.find();
-
     if (!banner || !banner.image) {
       return res.status(200).json({ imageUrl: null });
     }
-
-    // Sanitize the image URL
-    const sanitizedImageUrl = sanitizeImgbbUrl(banner.image);
-
-    // The image is now a direct imgbb URL
     return res.status(200).json({
       image: banner.image,
-      imageUrl: sanitizedImageUrl,
+      imageUrl: banner.image,
       updatedAt: banner.updatedAt,
     });
   } catch (error) {

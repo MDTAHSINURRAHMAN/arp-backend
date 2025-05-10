@@ -1,8 +1,5 @@
 import { Story } from "../models/Story.js";
 import { ObjectId } from "mongodb";
-import { uploadToImgbb } from "../middlewares/imgbbMiddleware.js";
-
-const sanitizeImgbbUrl = (url) => url?.replace("i.ibb.co.com", "i.ibb.co");
 
 // GET /api/story
 export const getStory = async (req, res) => {
@@ -11,11 +8,7 @@ export const getStory = async (req, res) => {
     if (!stories || stories.length === 0) {
       return res.status(200).json(null);
     }
-    const sanitizedStories = stories.map((story) => ({
-      ...story,
-      image: sanitizeImgbbUrl(story.image),
-    }));
-    res.status(200).json(sanitizedStories);
+    res.status(200).json(stories);
   } catch (error) {
     res.status(500).json({
       message: "Failed to fetch stories",

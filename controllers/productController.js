@@ -2,8 +2,6 @@ import { Product } from "../models/Product.js";
 import { ObjectId } from "mongodb";
 import { uploadToImgbb } from "../middlewares/imgbbMiddleware.js";
 
-const sanitizeImgbbUrl = (url) => url?.replace("i.ibb.co.com", "i.ibb.co");
-
 export const getAllProducts = async (req, res) => {
   try {
     const { search, category } = req.query;
@@ -106,10 +104,9 @@ export const uploadChartImage = async (req, res) => {
     }
 
     const chartImageUrl = await uploadToImgbb(file);
-    const sanitizedChartImageUrl = sanitizeImgbbUrl(chartImageUrl);
 
     const result = await Product.update(productId, {
-      chartImage: sanitizedChartImageUrl,
+      chartImage: chartImageUrl,
       updatedAt: new Date(),
     });
 
@@ -119,7 +116,7 @@ export const uploadChartImage = async (req, res) => {
 
     res.status(200).json({
       message: "Chart image uploaded successfully",
-      chartImage: sanitizedChartImageUrl,
+      chartImage: chartImageUrl,
     });
   } catch (error) {
     res.status(500).json({

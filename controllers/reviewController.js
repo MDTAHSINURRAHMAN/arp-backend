@@ -1,9 +1,6 @@
 import { Review } from "../models/Review.js";
 import { ObjectId } from "mongodb";
 import { getDB } from "../config/db.js";
-import { uploadToImgbb } from "../middlewares/imgbbMiddleware.js";
-
-const sanitizeImgbbUrl = (url) => url?.replace("i.ibb.co.com", "i.ibb.co");
 
 export const createReview = async (req, res) => {
   try {
@@ -68,11 +65,6 @@ export const getReviewById = async (req, res) => {
 
     if (!review) {
       return res.status(404).json({ message: "Review not found" });
-    }
-
-    // 🔧 Fix image URL here
-    if (review.image) {
-      review.image = sanitizeImgbbUrl(review.image);
     }
 
     // Add product name from productId
