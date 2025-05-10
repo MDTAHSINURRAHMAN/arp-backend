@@ -19,10 +19,7 @@ export const updateAbout = async (req, res) => {
     const db = getDB();
     const { brandMessage, missionPoints, email, address, phone, artistSay } =
       req.body;
-    let image2 = req.body.image2;
-    if (req.file) {
-      image2 = await uploadToImgbb(req.file);
-    }
+    let image2 = req.body.image2; // Only use the URL provided by the user
 
     // Ensure missionPoints is always an array
     let missionPointsParsed = missionPoints;
@@ -74,10 +71,7 @@ export const createAbout = async (req, res) => {
     const db = getDB();
     const { brandMessage, missionPoints, email, address, phone, artistSay } =
       req.body;
-    let image2 = req.body.image2;
-    if (req.file) {
-      image2 = await uploadToImgbb(req.file);
-    }
+    let image2 = req.body.image2; // Only use the URL provided by the user
 
     let missionPointsParsed = missionPoints;
     if (typeof missionPoints === "string") {

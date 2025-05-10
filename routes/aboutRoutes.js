@@ -14,12 +14,12 @@ const router = express.Router();
 router.get("/", getAbout);
 
 // POST: Create a new about page content
-router.post("/", protect, upload.single("image2"), createAbout);
+router.post("/", protect, createAbout);
 
 // DELETE: Delete about page content
 router.delete("/", protect, deleteAbout);
 
 // PUT: Update about page content (single document)
-router.put("/", protect, upload.single("image2"), updateAbout);
+router.put("/", protect, updateAbout);
 
 export default router;

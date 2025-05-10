@@ -14,8 +14,8 @@ const router = express.Router();
 router.get("/", getStory);
 
 // Protected Routes (admin only)
-router.post("/", protect, upload.single("image"), createStory);
-router.put("/:id", protect, upload.single("image"), updateStory);
+router.post("/", protect, createStory);
+router.put("/:id", protect, updateStory);
 router.delete("/:id", protect, deleteStory);
 
 export default router;

@@ -44,39 +44,9 @@ export const getProductById = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const productData = req.body;
-    const files = req.files;
-
-    productData.images = [];
-    productData.chartImage = null;
-
-    // Handle image array
-    const imageFiles = files?.images || [];
-    if (imageFiles.length > 0) {
-      const imageUrls = await Promise.all(
-        imageFiles.map(async (file) => {
-          const url = await uploadToImgbb(file);
-          return sanitizeImgbbUrl(url);
-        })
-      );
-      productData.images = imageUrls;
-    }
-
-    // Handle single chartImage
-    const chartFile = files?.chartImage?.[0];
-    if (chartFile) {
-      const url = await uploadToImgbb(chartFile);
-      productData.chartImage = sanitizeImgbbUrl(url);
-    }
-
-    // Normalize sizes/colors
-    if (!Array.isArray(productData.sizes)) {
-      productData.sizes = [productData.sizes];
-    }
-    if (!Array.isArray(productData.colors)) {
-      productData.colors = [productData.colors];
-    }
-
+    const { images, chartImage, ...otherFields } = req.body;
+    // images: array of URLs, chartImage: URL string
+    const productData = { ...otherFields, images, chartImage };
     const result = await Product.create(productData);
     res.status(201).json(result);
   } catch (error) {
@@ -91,54 +61,17 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const productId = new ObjectId(req.params.id);
-    const productData = req.body;
-    const files = req.files;
-
-    // Parse and normalize existing images from the frontend
-    const existingImages = JSON.parse(productData.existingImages || "[]");
-    let finalImages = existingImages;
-
-    // Handle uploaded product images
-    const newImageFiles = files?.images || [];
-    if (newImageFiles.length > 0) {
-      const uploadedUrls = await Promise.all(
-        newImageFiles.map(async (file) => {
-          const url = await uploadToImgbb(file);
-          return sanitizeImgbbUrl(url);
-        })
-      );
-      finalImages = [...existingImages, ...uploadedUrls];
-    }
-
-    // Handle uploaded chartImage (overwrite old one if present)
-    let chartImageUrl = productData.existingChartImage || null;
-    const chartImageFile = files?.chartImage?.[0];
-    if (chartImageFile) {
-      const url = await uploadToImgbb(chartImageFile);
-      chartImageUrl = sanitizeImgbbUrl(url);
-    }
-
-    // Construct update payload
+    const { images, chartImage, ...otherFields } = req.body;
     const updateData = {
-      name: productData.name,
-      description: productData.description,
-      price: parseFloat(productData.price),
-      category: productData.category,
-      stock: parseInt(productData.stock),
-      isPreOrder: productData.isPreOrder === "true",
-      sizes: JSON.parse(productData.sizes),
-      colors: JSON.parse(productData.colors),
-      images: finalImages,
-      chartImage: chartImageUrl,
+      ...otherFields,
+      images,
+      chartImage,
       updatedAt: new Date(),
     };
-
     const result = await Product.update(productId, updateData);
-
     if (result.matchedCount === 0) {
       return res.status(404).json({ message: "Product not found" });
     }
-
     res.status(200).json({ message: "Product updated successfully" });
   } catch (error) {
     console.error(error);

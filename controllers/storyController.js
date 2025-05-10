@@ -27,31 +27,18 @@ export const getStory = async (req, res) => {
 // POST /api/story
 export const createStory = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: "Image is required" });
+    const { image, content: contentRaw } = req.body;
+    const content = JSON.parse(contentRaw || "[]");
+    if (!image) {
+      return res.status(400).json({ message: "Image URL is required" });
     }
-
-    
-
-    const content = JSON.parse(req.body.content || "[]");
-
     if (!Array.isArray(content) || content.length === 0) {
       return res
         .status(400)
         .json({ message: "Content must be a non-empty array" });
     }
-
-    // Upload to imgbb
-    const imageUrl = await uploadToImgbb(req.file);
-    const sanitizedImageUrl = sanitizeImgbbUrl(imageUrl);
-
-    const newStory = {
-      image: sanitizedImageUrl,
-      content,
-    };
-
+    const newStory = { image, content };
     const result = await Story.create(newStory);
-
     res.status(201).json({
       message: "Story created successfully",
       storyId: result.insertedId,
@@ -74,20 +61,16 @@ export const updateStory = async (req, res) => {
       return res.status(400).json({ message: "Invalid story ID format" });
     }
 
-    const content = JSON.parse(req.body.content || "[]");
-
+    const { image, content: contentRaw } = req.body;
+    const content = JSON.parse(contentRaw || "[]");
     if (!Array.isArray(content) || content.length === 0) {
       return res
         .status(400)
         .json({ message: "Content must be a non-empty array" });
     }
-
     const updateData = { content };
-
-    if (req.file) {
-      const imageUrl = await uploadToImgbb(req.file);
-      const sanitizedImageUrl = sanitizeImgbbUrl(imageUrl);
-      updateData.image = sanitizedImageUrl;
+    if (image) {
+      updateData.image = image;
     }
 
     const result = await Story.update(storyId, updateData);

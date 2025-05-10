@@ -28,23 +28,18 @@ export const getBanner = async (req, res) => {
 
 export const updateBanner = async (req, res) => {
   try {
-    const file = req.file;
-
-    if (!file) {
-      return res.status(400).json({ message: "No image file uploaded" });
+    const { image } = req.body;
+    if (!image) {
+      return res.status(400).json({ message: "No image URL provided" });
     }
-
-    const imageUrl = await uploadToImgbb(file);
-    const sanitizedImageUrl = sanitizeImgbbUrl(imageUrl);
     const result = await Banner.upsert({
-      image: imageUrl,
+      image,
       updatedAt: new Date(),
     });
-
     return res.status(200).json({
       message: "Banner updated successfully",
-      image: imageUrl,
-      imageUrl: sanitizedImageUrl,
+      image,
+      imageUrl: image,
     });
   } catch (error) {
     console.error("❌ updateBanner error:", error.message);

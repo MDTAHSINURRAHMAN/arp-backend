@@ -7,7 +7,7 @@ const sanitizeImgbbUrl = (url) => url?.replace("i.ibb.co.com", "i.ibb.co");
 
 export const createReview = async (req, res) => {
   try {
-    const { productId, name, rating, subtext, review } = req.body;
+    const { productId, name, rating, subtext, review, image } = req.body;
 
     // Validate required fields
     if (!productId || !name || !rating || !review) {
@@ -30,11 +30,7 @@ export const createReview = async (req, res) => {
       });
     }
 
-    let imageUrl = null;
-    if (req.file) {
-      imageUrl = await uploadToImgbb(req.file);
-      imageUrl = sanitizeImgbbUrl(imageUrl);
-    }
+    let imageUrl = image || null;
 
     const result = await Review.create({
       productId,
@@ -154,7 +150,6 @@ export const getReviewsByProductId = async (req, res) => {
 
     const reviews = await Review.findByProductId(productId);
 
-
     res.status(200).json(reviews);
   } catch (error) {
     res
@@ -181,7 +176,7 @@ export const deleteReview = async (req, res) => {
 export const updateReview = async (req, res) => {
   try {
     const reviewId = new ObjectId(req.params.id);
-    const { productId, name, rating, subtext, review } = req.body;
+    const { productId, name, rating, subtext, review, image } = req.body;
 
     // Validate required fields if they are being updated
     if (name === "" || rating === "" || review === "") {
@@ -204,11 +199,7 @@ export const updateReview = async (req, res) => {
       });
     }
 
-    let imageUrl = undefined;
-    if (req.file) {
-  const rawUrl = await uploadToImgbb(req.file);
-  imageUrl = sanitizeImgbbUrl(rawUrl);
-}
+    let imageUrl = image;
 
     const updateData = {
       ...(productId !== undefined && { productId }),
