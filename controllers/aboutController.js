@@ -1,6 +1,5 @@
 import { getDB } from "../config/db.js";
 import { About } from "../models/About.js";
-import { uploadToImgbb } from "../middlewares/imgbbMiddleware.js";
 
 // Get About content
 export const getAbout = async (req, res) => {

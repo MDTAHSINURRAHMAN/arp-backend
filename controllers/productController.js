@@ -1,6 +1,5 @@
 import { Product } from "../models/Product.js";
 import { ObjectId } from "mongodb";
-import { uploadToImgbb } from "../middlewares/imgbbMiddleware.js";
 
 export const getAllProducts = async (req, res) => {
   try {
