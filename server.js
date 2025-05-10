@@ -34,7 +34,7 @@ const allowedOrigins = [
   "http://192.168.0.106:3000",
   "http://192.168.0.106:3001",
   "https://arp-admin-panel.vercel.app",
-  "https://arp-store.vercel.app",
+  "https://arp-frontend.vercel.app",
 ];
 
 app.use(
