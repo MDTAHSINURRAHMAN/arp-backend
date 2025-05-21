@@ -21,7 +21,13 @@ export const getStory = async (req, res) => {
 export const createStory = async (req, res) => {
   try {
     const { image, content: contentRaw } = req.body;
-    const content = JSON.parse(contentRaw || "[]");
+    let content;
+    // Only parse if it's a string, otherwise use as is
+    if (typeof contentRaw === "string") {
+      content = JSON.parse(contentRaw || "[]");
+    } else {
+      content = contentRaw || [];
+    }
     if (!image) {
       return res.status(400).json({ message: "Image URL is required" });
     }
