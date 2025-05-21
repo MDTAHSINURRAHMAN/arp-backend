@@ -61,7 +61,12 @@ export const updateStory = async (req, res) => {
     }
 
     const { image, content: contentRaw } = req.body;
-    const content = JSON.parse(contentRaw || "[]");
+    let content;
+    if (typeof contentRaw === "string") {
+      content = JSON.parse(contentRaw || "[]");
+    } else {
+      content = contentRaw || [];
+    }
     if (!Array.isArray(content) || content.length === 0) {
       return res
         .status(400)
