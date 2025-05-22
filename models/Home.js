@@ -6,6 +6,10 @@ export const Text = {
     const db = getDB();
     const result = await db.collection("home").insertOne({
       text: data.text,
+      facebook: data.facebook || "",
+      twitter: data.twitter || "",
+      instagram: data.instagram || "",
+      whatsapp: data.whatsapp || "",
       createdAt: new Date(),
     });
     return result.ops?.[0] || { _id: result.insertedId, ...data };

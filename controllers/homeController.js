@@ -7,6 +7,10 @@ export const createText = async (req, res) => {
   try {
     const result = await Text.create({
       text: req.body.text,
+      facebook: req.body.facebook,
+      twitter: req.body.twitter,
+      instagram: req.body.instagram,
+      whatsapp: req.body.whatsapp,
     });
     res.status(201).json(result);
   } catch (error) {
@@ -28,11 +32,18 @@ export const getAllTexts = async (req, res) => {
 export const updateText = async (req, res) => {
   try {
     const db = getDB();
-    const result = await db.collection("home").updateOne(
-      { _id: new ObjectId(req.params.id) },
-      { $set: { text: req.body.text, updatedAt: new Date() } }
-    );
-    
+    const updateFields = {
+      text: req.body.text,
+      facebook: req.body.facebook,
+      twitter: req.body.twitter,
+      instagram: req.body.instagram,
+      whatsapp: req.body.whatsapp,
+      updatedAt: new Date(),
+    };
+    const result = await db
+      .collection("home")
+      .updateOne({ _id: new ObjectId(req.params.id) }, { $set: updateFields });
+
     if (result.matchedCount > 0) {
       const updatedText = await Text.findById(req.params.id);
       res.json(updatedText);
@@ -57,5 +68,3 @@ export const deleteText = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-
