@@ -33,11 +33,11 @@ export const updateText = async (req, res) => {
   try {
     const db = getDB();
     const updateFields = {
-      text: req.body.text,
-      facebook: req.body.facebook,
-      twitter: req.body.twitter,
-      instagram: req.body.instagram,
-      whatsapp: req.body.whatsapp,
+      text: req.body.text ?? "",
+      facebook: req.body.facebook ?? "",
+      twitter: req.body.twitter ?? "",
+      instagram: req.body.instagram ?? "",
+      whatsapp: req.body.whatsapp ?? "",
       updatedAt: new Date(),
     };
     const result = await db
