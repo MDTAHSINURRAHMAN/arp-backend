@@ -35,18 +35,14 @@ const allowedOrigins = [
   "http://192.168.0.106:3001",
   "https://arp-admin-panel.vercel.app",
   // "https://arp-frontend.vercel.app",
-  "https://arp-store.vercel.app/"
+  "https://arp-store.vercel.app/",
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.error(`❌ CORS blocked: ${origin}`);
-        callback(new Error("Not allowed by CORS"));
-      }
+      // Allow all origins
+      callback(null, true);
     },
     credentials: true,
   })
