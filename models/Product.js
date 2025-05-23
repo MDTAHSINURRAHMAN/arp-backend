@@ -59,4 +59,30 @@ export const Product = {
     const db = getDB();
     return await db.collection(collection).distinct("category");
   },
+
+  async getAllSizes() {
+    const db = getDB();
+    const sizes = await db
+      .collection(collection)
+      .aggregate([
+        { $unwind: "$sizes" },
+        { $group: { _id: null, sizes: { $addToSet: "$sizes" } } },
+        { $project: { _id: 0, sizes: 1 } },
+      ])
+      .toArray();
+    return sizes[0]?.sizes || [];
+  },
+
+  async getAllColors() {
+    const db = getDB();
+    const colors = await db
+      .collection(collection)
+      .aggregate([
+        { $unwind: "$colors" },
+        { $group: { _id: null, colors: { $addToSet: "$colors" } } },
+        { $project: { _id: 0, colors: 1 } },
+      ])
+      .toArray();
+    return colors[0]?.colors || [];
+  },
 };

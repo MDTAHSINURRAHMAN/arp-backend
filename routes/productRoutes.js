@@ -6,6 +6,8 @@ import {
   updateProduct,
   deleteProduct,
   getAllCategories,
+  getAllSizes,
+  getAllColors,
 } from "../controllers/productController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 const router = express.Router();
@@ -16,5 +18,7 @@ router.get("/:id", getProductById);
 router.post("/", protect, createProduct);
 router.put("/:id", protect, updateProduct);
 router.delete("/:id", protect, deleteProduct);
+router.get("/sizes", getAllSizes);
+router.get("/colors", getAllColors);
 
 export default router;

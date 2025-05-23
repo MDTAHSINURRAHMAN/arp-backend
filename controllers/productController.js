@@ -103,3 +103,27 @@ export const getAllCategories = async (req, res) => {
     });
   }
 };
+
+export const getAllSizes = async (req, res) => {
+  try {
+    const sizes = await Product.getAllSizes();
+    res.status(200).json(sizes);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching sizes",
+      error: error.message,
+    });
+  }
+};
+
+export const getAllColors = async (req, res) => {
+  try {
+    const colors = await Product.getAllColors();
+    res.status(200).json(colors);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching colors",
+      error: error.message,
+    });
+  }
+};
