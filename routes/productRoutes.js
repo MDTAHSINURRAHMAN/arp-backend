@@ -14,11 +14,11 @@ const router = express.Router();
 
 router.get("/", getAllProducts);
 router.get("/categories", getAllCategories);
+router.get("/sizes", getAllSizes);
+router.get("/colors", getAllColors);
 router.get("/:id", getProductById);
 router.post("/", protect, createProduct);
 router.put("/:id", protect, updateProduct);
 router.delete("/:id", protect, deleteProduct);
-router.get("/sizes", getAllSizes);
-router.get("/colors", getAllColors);
 
 export default router;
