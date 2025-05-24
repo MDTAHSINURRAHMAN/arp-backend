@@ -7,9 +7,10 @@ export const Text = {
     const result = await db.collection("home").insertOne({
       text: data.text,
       facebook: data.facebook || "",
-      twitter: data.twitter || "",
       instagram: data.instagram || "",
       whatsapp: data.whatsapp || "",
+      pinterest: data.pinterest || "",
+      behance: data.behance || "",
       createdAt: new Date(),
     });
     return result.ops?.[0] || { _id: result.insertedId, ...data };

@@ -8,9 +8,10 @@ export const createText = async (req, res) => {
     const result = await Text.create({
       text: req.body.text,
       facebook: req.body.facebook,
-      twitter: req.body.twitter,
       instagram: req.body.instagram,
       whatsapp: req.body.whatsapp,
+      pinterest: req.body.pinterest,
+      behance: req.body.behance,
     });
     res.status(201).json(result);
   } catch (error) {
@@ -35,9 +36,10 @@ export const updateText = async (req, res) => {
     const updateFields = {
       text: req.body.text ?? "",
       facebook: req.body.facebook ?? "",
-      twitter: req.body.twitter ?? "",
       instagram: req.body.instagram ?? "",
       whatsapp: req.body.whatsapp ?? "",
+      pinterest: req.body.pinterest ?? "",
+      behance: req.body.behance ?? "",
       updatedAt: new Date(),
     };
     const result = await db
