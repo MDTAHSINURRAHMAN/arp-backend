@@ -16,6 +16,7 @@ import homeRoutes from "./routes/homeRoutes.js";
 import aboutRoutes from "./routes/aboutRoutes.js";
 import storyRoutes from "./routes/storyRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
+
 dotenv.config();
 
 const app = express();
